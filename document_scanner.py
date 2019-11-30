@@ -36,11 +36,11 @@ def find_edges(image, canny_image):
         approx = cv2.approxPolyDP(c, .02 * peri, True)
 
         if len(approx) == 4:
-            screenContours = approx
+            screen_contours = approx
             break
 
-    cv2.drawContours(image, [screenContours], -1, (0, 255, 0), 2)
-    return screenContours
+    cv2.drawContours(image, [screen_contours], -1, (0, 255, 0), 2)
+    return screen_contours
 
 def main():
     """
@@ -61,8 +61,8 @@ def main():
     T = threshold_local(warped, 11, offset=10, method="gaussian")
     warped = (warped > T).astype("uint8") * 255
 
-    cv2.imshow("original", imutils.resize(image, height=650))
-    cv2.imshow("scanned", imutils.resize(warped, height=650))
+    cv2.imshow("original", imutils.resize(image, height=1500))
+    cv2.imshow("scanned", imutils.resize(warped, height=1500))
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
