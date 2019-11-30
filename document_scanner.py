@@ -1,25 +1,71 @@
-import cv2
+from cv2 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+import imutils
+from skimage.filters import threshold_local
+from pyimagesearch import four_point_transform
 
 
-#read in the image and load and resize
-image = cv2.imread("test_doc.jpg")
-doc_image = np.copy(image)
-doc_imageS = cv2.resize(doc_image, (1134,2016))
 
-def canny(image):
+def canny(image_in):
+    """
+    applys greyscale to the passed in image
+    returns a canny copy of the image
+    """
     #convert to gray
-    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    gray = cv2.cvtColor(image_in, cv2.COLOR_RGB2GRAY)
     #apply Gaussian Blur
-    blur = cv2.GaussianBlur(gray, (5,5), 0)
+    blur = cv2.GaussianBlur(gray, (5, 5), 0)
     #identify strong edges
-    canny_image = cv2.Canny(blur, 50, 150)
-
+    canny_image = cv2.Canny(blur, 75, 200)
     return canny_image
 
 
-canny = canny(doc_imageS)
 
-cv2.imshow('result', canny)
-cv2.waitKey(0)
+def find_edges(image, canny_image):
+    """
+    applys an an outline of the document in the passed in image
+    needs a canny copy of the image
+    """
+    #find the contours
+    contours = cv2.findContours(canny_image.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours = imutils.grab_contours(contours)
+    contours = sorted(contours, key= cv2.contourArea, reverse=True)[:5]
+
+    for c in contours:
+        peri = cv2.arcLength(c, True)
+        approx = cv2.approxPolyDP(c, .02 * peri, True)
+
+        if len(approx) == 4:
+            screenContours = approx
+            break
+
+    cv2.drawContours(image, [screenContours], -1, (0, 255, 0), 2)
+    return screenContours
+
+def main():
+    """
+    run the main program
+    """
+    #read in the image and load and resize
+    image = cv2.imread("test_doc.jpg")
+    doc_image = np.copy(image)
+    doc_image_s = imutils.resize(doc_image, height=2000)
+    ratio = doc_image.shape[0] / 2000
+
+    canny_doc_image_s = canny(doc_image_s)
+    screen_contours = find_edges(doc_image_s, canny_doc_image_s)
+
+    warped = four_point_transform(image, screen_contours.reshape(4,2) * ratio)
+
+    warped = cv2.cvtColor(warped, cv2.COLOR_RGB2GRAY)
+    T = threshold_local(warped, 11, offset=10, method="gaussian")
+    warped = (warped > T).astype("uint8") * 255
+
+    cv2.imshow("original", imutils.resize(image, height=650))
+    cv2.imshow("scanned", imutils.resize(warped, height=650))
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    main()

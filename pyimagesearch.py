@@ -9,7 +9,7 @@ def order_points(pts):
     """
     #create container for coordinates for rectangle
     #order of entry:, top-left, top-right, bottom-right, bottom-left
-    rectangle = np.zeros((4,2), dtype= "float32")
+    rectangle = np.zeros((4, 2), dtype="float32")
 
     #find the top-left(smallest sum) and bottom-right(largest sum) points
     pt_sum = pts.sum(axis=1)
@@ -17,7 +17,7 @@ def order_points(pts):
     rectangle[2] = pts[np.argmax(pt_sum)]
 
     #find the top-right(smallest difference) and bottom-left(largest difference) points
-    pt_diff = pts.diff(pts, paxis = 1)
+    pt_diff = np.diff(pts, axis=1)
     rectangle[1] = pts[np.argmin(pt_diff)]
     rectangle[3] = pts[np.argmax(pt_diff)]
 
@@ -25,7 +25,7 @@ def order_points(pts):
 
 def four_point_transform(image, pts):
     """
-    write descript
+    Gain a new perspective of the passed image based on the passed points
     """
     #organize the point coordinates
     rectangle = order_points(pts)
