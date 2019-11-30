@@ -29,7 +29,7 @@ def find_edges(image, canny_image):
     #find the contours
     contours = cv2.findContours(canny_image.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
-    contours = sorted(contours, key= cv2.contourArea, reverse=True)[:5]
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)[:5]
 
     for c in contours:
         peri = cv2.arcLength(c, True)
@@ -52,14 +52,18 @@ def main():
     doc_image_s = imutils.resize(doc_image, height=2000)
     ratio = doc_image.shape[0] / 2000
 
+    #apply canny
     canny_doc_image_s = canny(doc_image_s)
+
+    #get the contours from the canny image and apply to the colored image
     screen_contours = find_edges(doc_image_s, canny_doc_image_s)
 
-    warped = four_point_transform(image, screen_contours.reshape(4,2) * ratio)
 
+    #change the perspective of the image based on the contours and threshold
+    warped = four_point_transform(image, screen_contours.reshape(4,2) * ratio)
     warped = cv2.cvtColor(warped, cv2.COLOR_RGB2GRAY)
-    T = threshold_local(warped, 11, offset=10, method="gaussian")
-    warped = (warped > T).astype("uint8") * 255
+    threshold = threshold_local(warped, 11, offset=10, method="gaussian")
+    warped = (warped > threshold).astype("uint8") * 255
 
     cv2.imshow("original", imutils.resize(image, height=1500))
     cv2.imshow("scanned", imutils.resize(warped, height=1500))
