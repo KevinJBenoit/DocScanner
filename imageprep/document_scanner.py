@@ -1,4 +1,5 @@
 from cv2 import cv2
+from PIL import Image
 import numpy as np
 import imutils
 from skimage.filters import threshold_local
