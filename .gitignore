@@ -2,3 +2,4 @@
 ###############
 .vscode/
 __pycache__/pyimagesearch.cpython-37.pyc
+.vs
