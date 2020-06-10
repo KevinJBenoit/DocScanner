@@ -47,7 +47,7 @@ def main():
     """
     run the main program
     """
-    #read in the image and load and resize
+    #read in the image and load and resize in ./DocScanner/
     image = cv2.imread("test_doc.jpg")
     doc_image = np.copy(image)
     doc_image_s = imutils.resize(doc_image, height=2000)
@@ -71,6 +71,7 @@ def main():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+    #TODO SAVE WARPED VARIABLE AS A NEW JPG FILE
 
 if __name__ == "__main__":
     main()
